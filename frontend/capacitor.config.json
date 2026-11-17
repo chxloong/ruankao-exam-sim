@@ -1,0 +1,8 @@
+{
+  "appId": "com.chxloong.ruankaoexam",
+  "appName": "软考机考模拟练习",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": true
+  }
+}

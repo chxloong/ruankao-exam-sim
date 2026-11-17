@@ -6,6 +6,9 @@
         <div class="brand-sub">全国计算机技术与软件专业技术资格（水平）考试 · 仿真练习</div>
       </div>
       <el-form :model="form" label-position="top" @keyup.enter="onLogin">
+        <el-form-item v-if="isNativeApp()" label="服务器地址">
+          <el-input v-model="serverUrl" placeholder="如 http://192.168.31.146:3001" />
+        </el-form-item>
         <el-form-item label="用户名">
           <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
         </el-form-item>
@@ -34,22 +37,29 @@ import { reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useAuthStore } from '../stores/auth';
+import { getServer, setServer, isNativeApp } from '../api';
 
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
 const form = reactive({ username: '', password: '' });
 const loading = ref(false);
+const serverUrl = ref(getServer());
 
 async function onLogin() {
   if (!form.username || !form.password) return ElMessage.warning('请输入用户名和密码');
+  if (isNativeApp()) setServer(serverUrl.value);
   loading.value = true;
   try {
     await auth.login(form.username.trim(), form.password);
     ElMessage.success('登录成功');
     router.push(route.query.redirect || '/');
   } catch (e) {
-    ElMessage.error(e.message);
+    if (isNativeApp() && (e.message.includes('Failed to fetch') || e.message.includes('NetworkError'))) {
+      ElMessage.error('无法连接服务器，请检查电脑端服务是否启动、手机与电脑是否在同一 WiFi，以及服务器地址是否正确');
+    } else {
+      ElMessage.error(e.message);
+    }
   } finally {
     loading.value = false;
   }
@@ -86,5 +96,15 @@ async function onLogin() {
   margin-top: 12px;
   text-align: right;
   font-size: 13px;
+}
+
+/* 竖屏手机适配 */
+@media (max-width: 768px) {
+  .auth-card {
+    width: min(420px, 92vw);
+  }
+  .brand-title {
+    font-size: 18px;
+  }
 }
 </style>

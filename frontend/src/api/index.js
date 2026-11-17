@@ -1,5 +1,30 @@
 const TOKEN_KEY = 'rk_token';
 const USER_KEY = 'rk_user';
+const SERVER_KEY = 'rk_server';
+
+// 安卓 App 默认连接的电脑端服务器（构建时固化，登录页可修改）
+export const DEFAULT_SERVER = 'http://192.168.31.146:3001';
+
+// 安卓/iOS 原生 App 内运行时返回 true（浏览器/Web 版为 false）
+export function isNativeApp() {
+  try {
+    return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  } catch {
+    return false;
+  }
+}
+
+export function getServer() {
+  if (isNativeApp()) return localStorage.getItem(SERVER_KEY) || DEFAULT_SERVER;
+  return localStorage.getItem(SERVER_KEY) || '';
+}
+
+export function setServer(url) {
+  const cleaned = (url || '').trim().replace(/\/+$/, '');
+  if (cleaned) localStorage.setItem(SERVER_KEY, cleaned);
+  else localStorage.removeItem(SERVER_KEY);
+  return cleaned;
+}
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -28,7 +53,7 @@ export async function api(path, { method = 'GET', body, keepalive = false } = {}
   const headers = { 'Content-Type': 'application/json' };
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(path, {
+  const res = await fetch(getServer() + path, {
     method,
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,

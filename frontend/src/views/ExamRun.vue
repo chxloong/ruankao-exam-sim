@@ -8,11 +8,12 @@
           <span class="timer-label">剩余时间</span>
           <span class="timer-value">{{ timeText }}</span>
         </div>
+        <el-button class="sheet-toggle" @click="sheetOpen = !sheetOpen">答题卡</el-button>
         <el-button type="danger" @click="submitExam(false)">交 卷</el-button>
       </div>
     </header>
 
-    <div class="exam-body">
+    <div class="exam-body" :class="{ 'is-mobile': isMobile }">
       <!-- 题目区 -->
       <main class="question-pane">
         <div class="question-card">
@@ -67,7 +68,7 @@
             <el-input
               v-model="currentAnswer.value"
               type="textarea"
-              :autosize="{ minRows: 14, maxRows: 24 }"
+              :autosize="{ minRows: isMobile ? 8 : 14, maxRows: isMobile ? 14 : 24 }"
               placeholder="请在此作答…（案例分析请按问题序号分条作答；论文请写完整文章）"
               @input="scheduleSave"
             />
@@ -84,8 +85,9 @@
         </div>
       </main>
 
-      <!-- 答题卡 -->
-      <aside class="sheet-pane">
+      <!-- 答题卡（移动端为抽屉） -->
+      <div v-if="isMobile && sheetOpen" class="sheet-mask" @click="sheetOpen = false"></div>
+      <aside class="sheet-pane" :class="{ open: isMobile && sheetOpen }">
         <div class="sheet-card">
           <div class="sheet-title">答题卡</div>
           <div class="sheet-legend">
@@ -134,6 +136,7 @@ import { reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { api, LETTERS } from '../api';
+import { useIsMobile } from '../composables/useIsMobile';
 import ExamCalculator from '../components/ExamCalculator.vue';
 
 const route = useRoute();
@@ -149,6 +152,8 @@ const remainSeconds = ref(0);
 const saveHint = ref('');
 const calcVisible = ref(false);
 const submitting = ref(false);
+const isMobile = useIsMobile();
+const sheetOpen = ref(false);
 
 let timer = null;
 let saveTimer = null;
@@ -275,6 +280,7 @@ function nextQuestion() {
 function jumpTo(index) {
   currentIndex.value = index;
   scheduleSave();
+  if (isMobile.value) sheetOpen.value = false;
 }
 
 // ---------- 自动保存 ----------
@@ -602,5 +608,95 @@ async function submitExam(auto = false) {
   background: #fff;
   padding: 24px;
   border-radius: 8px;
+}
+
+/* 桌面端隐藏答题卡抽屉按钮 */
+.sheet-toggle {
+  display: none;
+}
+.sheet-mask {
+  display: none;
+}
+
+/* 竖屏手机适配（≤768px）：上下布局 + 答题卡抽屉 */
+@media (max-width: 768px) {
+  .exam-topbar {
+    padding: 0 10px;
+  }
+  .exam-title {
+    font-size: 14px;
+    max-width: 38vw;
+  }
+  .exam-topbar-right {
+    gap: 8px;
+  }
+  .timer {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  .timer-label {
+    display: none;
+  }
+  .timer-value {
+    font-size: 15px;
+  }
+  .sheet-toggle {
+    display: inline-flex;
+    padding: 8px 10px;
+  }
+  .exam-body {
+    flex-direction: column;
+    padding: 10px;
+    gap: 0;
+  }
+  .question-pane {
+    flex: none;
+    width: 100%;
+  }
+  .question-card {
+    padding: 14px;
+  }
+  .q-stem {
+    font-size: 14px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .option-row {
+    padding: 10px;
+    font-size: 14px;
+  }
+  .option-letter {
+    width: 24px;
+    height: 24px;
+    font-size: 13px;
+  }
+  .question-footer {
+    padding-top: 12px;
+  }
+  .sheet-mask {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 19;
+  }
+  .sheet-pane {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(84vw, 340px);
+    z-index: 20;
+    padding: 12px;
+    overflow-y: auto;
+    transform: translateX(105%);
+    transition: transform 0.2s ease;
+  }
+  .sheet-pane.open {
+    transform: translateX(0);
+  }
+  .sheet-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 </style>

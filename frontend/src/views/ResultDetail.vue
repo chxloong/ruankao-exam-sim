@@ -371,4 +371,37 @@ onMounted(async () => {
   padding-top: 10px;
   white-space: pre-wrap;
 }
+
+/* 竖屏手机适配 */
+@media (max-width: 768px) {
+  .main {
+    margin: 14px auto;
+    padding: 0 12px;
+  }
+  .summary-stats {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .stat-value {
+    font-size: 22px;
+  }
+  .q-stem {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  .my-text,
+  .ref-text {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  .self-score {
+    flex-wrap: wrap;
+  }
+  .topbar {
+    padding: 0 12px;
+  }
+  .topbar-title {
+    font-size: 15px;
+  }
+}
 </style>

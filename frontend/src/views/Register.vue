@@ -84,4 +84,14 @@ async function onRegister() {
   text-align: right;
   font-size: 13px;
 }
+
+/* 竖屏手机适配 */
+@media (max-width: 768px) {
+  .auth-card {
+    width: min(420px, 92vw);
+  }
+  .brand-title {
+    font-size: 18px;
+  }
+}
 </style>

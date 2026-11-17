@@ -14,3 +14,17 @@ body {
   background: #f0f2f5;
   color: #303133;
 }
+
+/* 移动端：弹窗与消息框限宽，避免横向溢出 */
+@media (max-width: 768px) {
+  .el-dialog {
+    max-width: 94vw;
+  }
+  .el-message-box {
+    max-width: 92vw;
+  }
+  .el-message {
+    max-width: 92vw;
+  }
+}
+

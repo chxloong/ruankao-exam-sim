@@ -103,4 +103,26 @@ function enterExam() {
   justify-content: center;
   gap: 12px;
 }
+
+/* 竖屏手机适配 */
+@media (max-width: 768px) {
+  .notice-page {
+    padding: 12px;
+    align-items: stretch;
+  }
+  .notice-card {
+    width: 100%;
+    padding: 20px 16px;
+  }
+  .notice-title {
+    font-size: 18px;
+  }
+  .notice-body ol li {
+    line-height: 1.7;
+    font-size: 13px;
+  }
+  .notice-footer {
+    flex-wrap: wrap;
+  }
+}
 </style>

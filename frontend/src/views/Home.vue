@@ -178,10 +178,45 @@ onMounted(load);
   margin-top: 16px;
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 .loading {
   background: #fff;
   padding: 24px;
   border-radius: 8px;
 }
+
+/* 竖屏手机适配 */
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 12px;
+  }
+  .topbar-title {
+    font-size: 15px;
+  }
+  .main {
+    padding: 14px;
+  }
+  .banner {
+    padding: 18px;
+    border-radius: 8px;
+  }
+  .banner-title {
+    font-size: 17px;
+  }
+  .banner-sub {
+    font-size: 12px;
+  }
+  .paper-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .paper-title {
+    font-size: 16px;
+  }
+  .paper-actions .el-button {
+    margin-left: 0;
+  }
+}
+
 </style>

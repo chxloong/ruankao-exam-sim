@@ -60,4 +60,37 @@ const router = useRouter();
   background: #f0f2f5;
   padding: 20px;
 }
+
+/* 竖屏手机适配：侧栏变顶部横向导航 */
+@media (max-width: 768px) {
+  .admin-page {
+    flex-direction: column;
+  }
+  .admin-aside {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+  }
+  .admin-logo {
+    padding: 10px 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .admin-aside :deep(.el-menu) {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    flex: 1;
+  }
+  .admin-aside :deep(.el-menu-item) {
+    padding: 0 14px;
+  }
+  .admin-back {
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
+  .admin-main {
+    padding: 12px;
+  }
+}
 </style>

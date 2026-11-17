@@ -8,6 +8,28 @@
 
     <main class="main">
       <el-empty v-if="!results.length" description="还没有考试记录，快去首页开始模拟练习吧" />
+
+      <!-- 移动端：卡片列表 -->
+      <div v-else-if="isMobile" class="result-cards">
+        <el-card
+          v-for="r in results"
+          :key="r.id"
+          class="result-card"
+          shadow="hover"
+          @click="router.push(`/results/${r.id}`)"
+        >
+          <div class="rc-title">{{ r.paperTitle }}</div>
+          <div class="rc-meta">{{ r.subject }} · {{ formatTime(r.submittedAt) }}</div>
+          <div class="rc-row">
+            <span class="rc-score" :class="r.passed ? 'pass' : 'fail'">{{ r.totalScore ?? '待自评' }}</span>
+            <span class="rc-pass">及格 {{ r.passScore }}</span>
+            <el-tag :type="r.passed ? 'success' : 'danger'" size="small">{{ r.passed ? '通过' : '未通过' }}</el-tag>
+            <el-tag v-if="!r.selfScored" type="warning" size="small">待自评</el-tag>
+            <el-button link type="primary" size="small" style="margin-left: auto">详情 ›</el-button>
+          </div>
+        </el-card>
+      </div>
+
       <el-table v-else :data="results" stripe>
         <el-table-column prop="paperTitle" label="试卷" min-width="220" />
         <el-table-column prop="subject" label="科目" width="180" />
@@ -47,10 +69,12 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { api } from '../api';
 import { useAuthStore } from '../stores/auth';
+import { useIsMobile } from '../composables/useIsMobile';
 
 const router = useRouter();
 const auth = useAuthStore();
 const results = ref([]);
+const isMobile = useIsMobile();
 
 function formatTime(iso) {
   if (!iso) return '-';
@@ -103,5 +127,51 @@ onMounted(async () => {
 .fail {
   color: #f56c6c;
   font-weight: 700;
+}
+
+/* 移动端卡片 */
+.result-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.result-card {
+  cursor: pointer;
+}
+.rc-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+.rc-meta {
+  color: #909399;
+  font-size: 12px;
+  margin: 6px 0 10px;
+}
+.rc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rc-score {
+  font-size: 20px;
+  font-weight: 700;
+}
+.rc-pass {
+  color: #909399;
+  font-size: 13px;
+}
+
+/* 竖屏手机适配 */
+@media (max-width: 768px) {
+  .main {
+    margin: 14px auto;
+    padding: 0 12px;
+  }
+  .topbar {
+    padding: 0 12px;
+  }
+  .topbar-title {
+    font-size: 15px;
+  }
 }
 </style>

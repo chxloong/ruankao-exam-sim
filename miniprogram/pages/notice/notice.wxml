@@ -1,0 +1,18 @@
+<view class="card" wx:if="{{paper}}">
+  <view class="head">
+    <view class="title">{{paper.title}}</view>
+    <view class="sub">{{paper.subject}} · 时长 {{paper.duration}} 分钟 · 及格线 {{paper.passScore}} 分</view>
+  </view>
+  <view class="body">
+    <view class="h3">考场须知</view>
+    <view class="li">1. 本系统为机考模拟练习环境，界面与操作方式仿照真实机考系统。</view>
+    <view class="li">2. 点击"我已阅读"后开始计时，倒计时结束将自动交卷。</view>
+    <view class="li">3. 作答过程自动保存；中途退出后可在首页"继续考试"恢复。</view>
+    <view class="li">4. 可对题目进行"标记"，答题卡中以特殊颜色显示，便于复查。</view>
+    <view class="li">5. 客观题交卷后自动评分；多选题少选得部分分、错选不得分。</view>
+    <view class="li">6. 主观题在文本框作答，交卷后对照参考答案自评计分。</view>
+    <view class="li">7. 确认作答完成后点击"交卷"并确认，系统立即评分。</view>
+  </view>
+  <button class="btn-primary enter" bindtap="enterExam">我已阅读，开始考试</button>
+</view>
+<view wx:else class="loading">加载中…</view>

@@ -1,0 +1,34 @@
+<view class="topbar">
+  <text class="topbar-title">软考机考模拟练习系统</text>
+  <view class="topbar-right">
+    <text class="link" bindtap="goResults">我的成绩</text>
+    <text class="link" bindtap="logout">退出</text>
+  </view>
+</view>
+
+<view class="banner">
+  <view class="banner-title">选择试卷，开始机考模拟练习</view>
+  <view class="banner-sub">倒计时 · 答题卡 · 标记复查 · 自动保存 · 交卷自动评分</view>
+</view>
+
+<view wx:if="{{loading}}" class="loading">加载中…</view>
+<view wx:elif="{{!papers.length}}" class="empty">暂无已发布的试卷，请在电脑端网页版管理后台组卷发布</view>
+
+<view wx:else>
+  <view wx:for="{{papers}}" wx:key="id" class="card paper">
+    <view class="paper-head">
+      <text class="subject-tag">{{item.subject}}</text>
+      <text wx:if="{{item.myInProgress}}" class="status-warn">有未完成的考试</text>
+    </view>
+    <view class="paper-title">{{item.title}}</view>
+    <view class="paper-meta">共 {{item.question_count}} 题 · 满分 {{item.total_score}} 分 · 时长 {{item.duration_minutes}} 分钟 · 及格 {{item.pass_score}} 分</view>
+    <view class="paper-actions">
+      <button class="btn-primary act-btn" data-id="{{item.id}}" data-title="{{item.title}}" bindtap="goExam">
+        {{item.myInProgress ? '继续考试' : '开始考试'}}
+      </button>
+      <button wx:if="{{item.myLatest}}" class="act-btn act-plain" data-id="{{item.myLatest.recordId}}" bindtap="goDetail">
+        最近成绩 {{item.myLatest.totalScore}} 分 · {{item.myLatest.passed ? '通过' : '未通过'}}
+      </button>
+    </view>
+  </view>
+</view>

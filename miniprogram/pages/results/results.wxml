@@ -1,0 +1,18 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="loading">加载中…</view>
+  <view wx:elif="{{!results.length}}" class="loading">还没有考试记录，快去首页开始模拟练习吧</view>
+
+  <view wx:else>
+    <view wx:for="{{results}}" wx:key="id" class="card rc" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="rc-title">{{item.paperTitle}}</view>
+      <view class="rc-meta">{{item.subject}} · {{item.timeText}}</view>
+      <view class="rc-row">
+        <text class="rc-score {{item.passed ? 'pass' : 'fail'}}">{{item.totalScore === null ? '待自评' : item.totalScore}}</text>
+        <text class="rc-pass">及格 {{item.passScore}}</text>
+        <text class="rc-tag {{item.passed ? 'tag-pass' : 'tag-fail'}}">{{item.passed ? '通过' : '未通过'}}</text>
+        <text wx:if="{{!item.selfScored}}" class="rc-tag tag-warn">待自评</text>
+        <text class="rc-go">详情 ›</text>
+      </view>
+    </view>
+  </view>
+</view>

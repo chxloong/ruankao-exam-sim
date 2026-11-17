@@ -1,0 +1,57 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #1c3faa 0%, #2f6fdb 60%, #4a8ef0 100%);
+}
+.card {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 40rpx 32rpx;
+  padding: 40rpx 32rpx;
+}
+.brand {
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+.brand-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1c3faa;
+}
+.brand-sub {
+  font-size: 22rpx;
+  color: #909399;
+  margin-top: 12rpx;
+}
+.field {
+  margin-bottom: 26rpx;
+}
+.label {
+  font-size: 26rpx;
+  color: #606266;
+}
+.input {
+  margin-top: 10rpx;
+  background: #f5f7fa;
+  border: 1rpx solid #dcdfe6;
+  border-radius: 8rpx;
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+}
+.login-btn {
+  margin-top: 36rpx;
+}
+.links {
+  display: block;
+  text-align: right;
+  color: #1c3faa;
+  font-size: 26rpx;
+  margin-top: 20rpx;
+}
+.hint {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #909399;
+  line-height: 1.6;
+}

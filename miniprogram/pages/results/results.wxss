@@ -1,0 +1,58 @@
+.loading {
+  text-align: center;
+  color: #909399;
+  padding: 80rpx 40rpx;
+}
+.rc {
+  margin: 20rpx 24rpx;
+}
+.rc-title {
+  font-weight: 700;
+  font-size: 29rpx;
+}
+.rc-meta {
+  color: #909399;
+  font-size: 22rpx;
+  margin: 10rpx 0 14rpx;
+}
+.rc-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+.rc-score {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+.rc-pass {
+  color: #909399;
+  font-size: 24rpx;
+}
+.rc-tag {
+  font-size: 21rpx;
+  border-radius: 6rpx;
+  padding: 4rpx 12rpx;
+}
+.tag-pass {
+  background: #f0f9eb;
+  color: #67c23a;
+}
+.tag-fail {
+  background: #fef0f0;
+  color: #f56c6c;
+}
+.tag-warn {
+  background: #fdf6ec;
+  color: #e6a23c;
+}
+.rc-go {
+  margin-left: auto;
+  color: #1c3faa;
+  font-size: 25rpx;
+}
+.pass {
+  color: #67c23a;
+}
+.fail {
+  color: #f56c6c;
+}

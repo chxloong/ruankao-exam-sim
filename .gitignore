@@ -8,6 +8,19 @@ frontend/dist-ssr/
 # 运行时数据（本地 SQLite 数据库）
 backend/data/
 
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+
+# PyInstaller 构建产物
+backend/build/
+backend/dist/
+backend/*.spec
+
+# 发布成品（exe / apk）
+release/
+
 # ZCode 工作区元数据
 .zcode/
 

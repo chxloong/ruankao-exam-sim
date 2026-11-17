@@ -1,0 +1,87 @@
+.topbar {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 21, 41, 0.08);
+}
+.topbar-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1c3faa;
+}
+.topbar-right {
+  display: flex;
+  gap: 24rpx;
+}
+.link {
+  color: #1c3faa;
+  font-size: 26rpx;
+}
+.banner {
+  background: linear-gradient(120deg, #1c3faa, #2f6fdb);
+  color: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin: 24rpx;
+}
+.banner-title {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+.banner-sub {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  opacity: 0.85;
+}
+.loading,
+.empty {
+  text-align: center;
+  color: #909399;
+  padding: 80rpx 40rpx;
+  font-size: 26rpx;
+}
+.paper-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.subject-tag {
+  background: #1c3faa;
+  color: #fff;
+  font-size: 22rpx;
+  border-radius: 6rpx;
+  padding: 6rpx 14rpx;
+}
+.status-warn {
+  color: #e6a23c;
+  font-size: 24rpx;
+}
+.paper-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin: 20rpx 0 10rpx;
+}
+.paper-meta {
+  color: #909399;
+  font-size: 23rpx;
+}
+.paper-actions {
+  margin-top: 24rpx;
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+.act-btn {
+  margin: 0;
+  font-size: 26rpx;
+  padding: 0 28rpx;
+  line-height: 72rpx;
+  height: 72rpx;
+}
+.act-plain {
+  background: #fff;
+  color: #606266;
+  border: 1rpx solid #dcdfe6;
+}

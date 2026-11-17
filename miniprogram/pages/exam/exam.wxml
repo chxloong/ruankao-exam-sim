@@ -1,0 +1,102 @@
+<view class="topbar">
+  <text class="title">{{paper.title}}</text>
+  <view class="topbar-right">
+    <text class="timer {{remainSeconds <= 300 ? 'danger' : ''}}">{{timeText}}</text>
+    <text class="topbtn" bindtap="toggleSheet">答题卡</text>
+    <text class="topbtn submit" bindtap="confirmSubmit">交卷</text>
+  </view>
+</view>
+
+<scroll-view scroll-y class="body" wx:if="{{currentQ}}">
+  <view class="card">
+    <view class="meta">
+      <text class="qindex">第 {{current + 1}} / {{questions.length}} 题</text>
+      <text class="tag">{{currentQ.section}}</text>
+      <text class="tag">{{currentQ.type === 'single' ? '单选题' : currentQ.type === 'multiple' ? '多选题' : '主观题'}}</text>
+      <text class="tag score">{{currentQ.score}} 分</text>
+      <text class="markbtn {{currentAnswer.marked ? 'marked' : ''}}" bindtap="toggleMark">{{currentAnswer.marked ? '★ 已标记' : '☆ 标记此题'}}</text>
+    </view>
+
+    <view class="stem">{{currentQ.stem}}</view>
+
+    <!-- 单选 -->
+    <block wx:if="{{currentQ.type === 'single'}}">
+      <view
+        wx:for="{{currentQ.options}}"
+        wx:for-index="i"
+        wx:key="*this"
+        class="opt {{currentAnswer.value === letters[i] ? 'sel' : ''}}"
+        data-i="{{i}}"
+        bindtap="pickSingle"
+      >
+        <text class="letter">{{letters[i]}}</text>
+        <text class="opt-text">{{item}}</text>
+      </view>
+    </block>
+
+    <!-- 多选 -->
+    <block wx:elif="{{currentQ.type === 'multiple'}}">
+      <view
+        wx:for="{{currentQ.options}}"
+        wx:for-index="i"
+        wx:key="*this"
+        class="opt {{selMap[letters[i]] ? 'sel' : ''}}"
+        data-i="{{i}}"
+        bindtap="toggleMulti"
+      >
+        <text class="letter">{{letters[i]}}</text>
+        <text class="opt-text">{{item}}</text>
+      </view>
+      <view class="tip">多选题：少选得部分分，错选不得分</view>
+    </block>
+
+    <!-- 主观题 -->
+    <block wx:else>
+      <textarea
+        class="ta"
+        value="{{currentAnswer.value}}"
+        bindinput="onText"
+        maxlength="-1"
+        placeholder="请在此作答…（案例分析请按问题序号分条作答；论文请写完整文章）"
+      ></textarea>
+      <view class="word">已输入 {{textLen}} 字</view>
+    </block>
+
+    <view class="footer">
+      <button class="navbtn" size="mini" disabled="{{current === 0}}" bindtap="prev">上一题</button>
+      <text class="save">{{saveHint}}</text>
+      <button class="navbtn primary" size="mini" disabled="{{current === questions.length - 1}}" bindtap="next">下一题</button>
+    </view>
+  </view>
+  <view class="bottom-space"></view>
+</scroll-view>
+
+<!-- 答题卡抽屉 -->
+<view class="mask" wx:if="{{sheetOpen}}" bindtap="toggleSheet"></view>
+<view class="sheet {{sheetOpen ? 'open' : ''}}">
+  <view class="sheet-title">答题卡</view>
+  <view class="legend">
+    <text class="lg"><text class="dot answered"></text>已作答</text>
+    <text class="lg"><text class="dot marked"></text>已标记</text>
+    <text class="lg"><text class="dot"></text>未作答</text>
+  </view>
+  <scroll-view scroll-y class="sheet-body">
+    <block wx:for="{{sections}}" wx:key="name" wx:for-item="sec">
+      <view class="sec-name">{{sec.name}}（{{sec.questions.length}} 题）</view>
+      <view class="grid">
+        <view
+          wx:for="{{sec.questions}}"
+          wx:key="question_id"
+          wx:for-item="q"
+          class="cell {{answeredMap[q.question_id] ? 'answered' : ''}} {{marksMap[q.question_id] ? 'marked' : ''}} {{flatIndex[q.question_id] === current ? 'cur' : ''}}"
+          data-fid="{{flatIndex[q.question_id]}}"
+          bindtap="jump"
+        >{{flatIndex[q.question_id] + 1}}</view>
+      </view>
+    </block>
+    <view class="sheet-stat">已答 {{answeredCount}} / {{questions.length}}，未答 {{questions.length - answeredCount}}</view>
+  </scroll-view>
+  <view class="sheet-footer">
+    <button class="sheet-submit" bindtap="confirmSubmit">交 卷</button>
+  </view>
+</view>

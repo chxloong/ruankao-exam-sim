@@ -1,0 +1,76 @@
+<view wx:if="{{paper}}" class="page">
+  <view class="card summary">
+    <view class="s-title">{{paper.title}}</view>
+    <view class="s-sub">{{paper.subject}} · 交卷时间 {{record.submittedAt}}</view>
+    <view class="s-stats">
+      <view class="stat">
+        <view class="stat-value {{totalScore >= paper.passScore ? 'pass' : 'fail'}}">{{totalScore === null ? '-' : totalScore}}</view>
+        <view class="stat-label">总分（满分 {{paper.totalScore}}）</view>
+      </view>
+      <view class="stat">
+        <view class="stat-value">{{paper.passScore}}</view>
+        <view class="stat-label">及格线</view>
+      </view>
+      <view class="stat">
+        <text class="bigtag {{totalScore >= paper.passScore ? 'tag-pass' : 'tag-fail'}}">{{totalScore >= paper.passScore ? '通 过' : '未通过'}}</text>
+      </view>
+      <view class="stat">
+        <text class="bigtag {{record.selfScored ? 'tag-pass' : 'tag-warn'}}">{{record.selfScored ? '主观题已自评' : '主观题待自评'}}</text>
+      </view>
+    </view>
+    <view wx:if="{{!record.selfScored}}" class="warn">案例分析/论文为主观题，请对照【参考答案】自评分数，自评后总分与通过判定才会最终生效。</view>
+  </view>
+
+  <block wx:for="{{sections}}" wx:key="name" wx:for-item="sec">
+    <view class="sec-name">{{sec.name}}</view>
+    <view wx:for="{{sec.questions}}" wx:key="question_id" wx:for-item="q" class="card q">
+      <view class="q-head">
+        <text class="q-no">第 {{q.sort + 1}} 题</text>
+        <text class="tag">{{q.type === 'single' ? '单选题' : q.type === 'multiple' ? '多选题' : '主观题'}}</text>
+        <text class="tag score">{{q.score}} 分</text>
+        <text class="q-score">得分：
+          <text class="{{q.scoreItem.score === null ? 'muted' : q.scoreItem.score >= q.scoreItem.max ? 'pass' : q.scoreItem.score > 0 ? 'partial' : 'fail'}}">{{q.scoreItem.score === null ? '待自评' : q.scoreItem.score}}</text>
+          / {{q.score}}
+        </text>
+      </view>
+
+      <view class="stem">{{q.stem}}</view>
+
+      <!-- 客观题 -->
+      <block wx:if="{{q.type !== 'text'}}">
+        <view
+          wx:for="{{q.options}}"
+          wx:for-index="i"
+          wx:key="*this"
+          class="opt {{q.answer.indexOf(q.letters[i]) >= 0 ? 'opt-answer' : ''}} {{q.myAnswer.indexOf(q.letters[i]) >= 0 && q.answer.indexOf(q.letters[i]) < 0 ? 'opt-wrong' : ''}}"
+        >
+          <text class="letter">{{q.letters[i]}}</text>
+          <text class="opt-text">{{item}}</text>
+        </view>
+        <view class="answer-line">
+          你的答案：<text class="{{q.scoreItem.correct ? 'pass' : 'fail'}}">{{q.myAnswer || '未作答'}}</text>
+          <text class="sep">｜</text>
+          正确答案：<text class="pass">{{q.answer}}</text>
+          <text class="rc-tag {{q.scoreItem.correct ? 'tag-pass' : 'tag-fail'}}">{{q.scoreItem.correct ? '答对' : '答错'}}</text>
+        </view>
+      </block>
+
+      <!-- 主观题 -->
+      <block wx:else>
+        <view class="answer-line">你的作答：<text wx:if="{{!q.myAnswer}}" class="muted">（未作答）</text></view>
+        <view wx:if="{{q.myAnswer}}" class="my-text">{{q.myAnswer}}</view>
+        <view class="answer-line">参考答案：</view>
+        <view class="ref-text">{{q.answer_text}}</view>
+        <view class="self">
+          <text>自评得分：</text>
+          <input class="self-input" type="digit" value="{{selfInput[q.question_id]}}" data-qid="{{q.question_id}}" bindinput="onSelfInput" />
+          <button class="self-btn" size="mini" data-qid="{{q.question_id}}" bindtap="saveSelf">保存自评</button>
+        </view>
+      </block>
+
+      <view wx:if="{{q.analysis}}" class="analysis">解析：{{q.analysis}}</view>
+    </view>
+  </block>
+  <view class="bottom-space"></view>
+</view>
+<view wx:else class="loading">加载中…</view>

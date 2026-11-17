@@ -1,0 +1,26 @@
+<view class="page">
+  <view class="card">
+    <view class="brand">
+      <view class="brand-title">软考机考模拟练习系统</view>
+      <view class="brand-sub">全国计算机技术与软件专业技术资格（水平）考试 · 仿真练习</view>
+    </view>
+
+    <view class="field">
+      <text class="label">服务器地址</text>
+      <input class="input" value="{{server}}" bindinput="onServer" placeholder="如 http://192.168.31.146:3001" />
+    </view>
+    <view class="field">
+      <text class="label">用户名</text>
+      <input class="input" value="{{username}}" bindinput="onUser" placeholder="请输入用户名" />
+    </view>
+    <view class="field">
+      <text class="label">密码</text>
+      <input class="input" password value="{{password}}" bindinput="onPwd" placeholder="请输入密码" />
+    </view>
+
+    <button class="btn-primary login-btn" loading="{{loading}}" bindtap="doLogin">登 录</button>
+    <navigator class="links" url="/pages/results/results">查看我的成绩 →</navigator>
+    <view class="hint">演示账号：管理员 admin / admin123，考生 student / 123456</view>
+    <view class="hint">手机需与电脑连同一网络；正式使用需在开发者工具关闭"合法域名校验"（本项目已默认关闭）</view>
+  </view>
+</view>

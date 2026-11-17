@@ -19,11 +19,8 @@ export const useAuthStore = defineStore('auth', {
       setStoredUser(data.user);
     },
     async register(username, password) {
-      const data = await api('/api/auth/register', { method: 'POST', body: { username, password } });
-      this.token = data.token;
-      this.user = data.user;
-      setToken(data.token);
-      setStoredUser(data.user);
+      // 自助注册后为待审核状态，不自动登录
+      return api('/api/auth/register', { method: 'POST', body: { username, password } });
     },
     logout() {
       this.token = null;

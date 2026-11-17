@@ -1,0 +1,26 @@
+<view class="page">
+  <view class="card">
+    <view class="brand">
+      <view class="brand-title">注册账号</view>
+      <view class="brand-sub">注册后需管理员审核通过方可登录</view>
+    </view>
+    <view class="field">
+      <text class="label">服务器地址</text>
+      <input class="input" value="{{server}}" bindinput="onServer" placeholder="如 http://192.168.31.146:3001" />
+    </view>
+    <view class="field">
+      <text class="label">用户名</text>
+      <input class="input" value="{{username}}" bindinput="onUser" placeholder="2-20 位字母、数字、下划线或中文" />
+    </view>
+    <view class="field">
+      <text class="label">密码</text>
+      <input class="input" password value="{{password}}" bindinput="onPwd" placeholder="至少 6 位" />
+    </view>
+    <view class="field">
+      <text class="label">确认密码</text>
+      <input class="input" password value="{{confirm}}" bindinput="onConfirm" placeholder="再次输入密码" />
+    </view>
+    <button class="btn-primary login-btn" loading="{{loading}}" bindtap="doRegister">注 册</button>
+    <navigator class="links" url="/pages/login/login" open-type="navigateBack">已有账号？去登录</navigator>
+  </view>
+</view>

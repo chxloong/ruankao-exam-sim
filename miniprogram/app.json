@@ -1,6 +1,8 @@
 {
   "pages": [
     "pages/login/login",
+    "pages/register/register",
+    "pages/password/password",
     "pages/index/index",
     "pages/notice/notice",
     "pages/exam/exam",

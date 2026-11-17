@@ -2,6 +2,7 @@
   <text class="topbar-title">软考机考模拟练习系统</text>
   <view class="topbar-right">
     <text class="link" bindtap="goResults">我的成绩</text>
+    <text class="link" bindtap="goPwd">修改密码</text>
     <text class="link" bindtap="logout">退出</text>
   </view>
 </view>

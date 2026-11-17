@@ -9,10 +9,35 @@
         </template>
         <el-button link type="primary" @click="router.push('/results')">我的成绩</el-button>
         <el-divider direction="vertical" />
+        <el-button link type="primary" @click="pwdVisible = true">修改密码</el-button>
+        <el-divider direction="vertical" />
         <span class="username">{{ auth.user?.username }}</span>
         <el-button link @click="onLogout">退出</el-button>
       </div>
     </header>
+
+    <template v-if="pwdVisible">
+      <div class="dlg-mask" @click="pwdVisible = false"></div>
+      <div class="dlg-box">
+        <div class="dlg-title">修改密码</div>
+        <div class="dlg-field">
+          <text class="dlg-label">旧密码</text>
+          <el-input v-model="pwdForm.oldPassword" type="password" show-password placeholder="请输入当前密码" />
+        </div>
+        <div class="dlg-field">
+          <text class="dlg-label">新密码</text>
+          <el-input v-model="pwdForm.newPassword" type="password" show-password placeholder="至少 6 位" />
+        </div>
+        <div class="dlg-field">
+          <text class="dlg-label">确认新密码</text>
+          <el-input v-model="pwdForm.confirm" type="password" show-password placeholder="再次输入新密码" />
+        </div>
+        <div class="dlg-footer">
+          <el-button @click="pwdVisible = false">取消</el-button>
+          <el-button type="primary" :loading="pwdLoading" @click="changePwd">保存</el-button>
+        </div>
+      </div>
+    </template>
 
     <main class="main">
       <div class="banner">
@@ -57,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { api } from '../api';
@@ -67,6 +92,36 @@ const router = useRouter();
 const auth = useAuthStore();
 const papers = ref([]);
 const loading = ref(true);
+
+const pwdVisible = ref(false);
+const pwdLoading = ref(false);
+const pwdForm = reactive({ oldPassword: '', newPassword: '', confirm: '' });
+
+async function changePwd() {
+  const { oldPassword, newPassword, confirm } = pwdForm;
+  if (!oldPassword || !newPassword) return ElMessage.warning('请输入旧密码和新密码');
+  if (newPassword.length < 6) return ElMessage.warning('新密码至少 6 位');
+  if (newPassword !== confirm) return ElMessage.warning('两次输入的新密码不一致');
+  pwdLoading.value = true;
+  try {
+    const data = await api('/api/auth/change-password', {
+      method: 'PUT',
+      body: { oldPassword, newPassword },
+    });
+    pwdVisible.value = false;
+    ElMessageBox.alert(data.message || '密码修改成功，请重新登录', '修改成功', {
+      confirmButtonText: '重新登录',
+      callback: () => {
+        auth.logout();
+        router.push('/login');
+      },
+    });
+  } catch (e) {
+    ElMessage.error(e.message);
+  } finally {
+    pwdLoading.value = false;
+  }
+}
 
 async function load() {
   loading.value = true;
@@ -129,6 +184,42 @@ onMounted(load);
 .username {
   color: #606266;
   margin-right: 4px;
+}
+.dlg-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+}
+.dlg-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, 92vw);
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  z-index: 101;
+  box-shadow: 0 8px 30px rgba(0, 21, 41, 0.2);
+}
+.dlg-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.dlg-field {
+  margin-bottom: 14px;
+}
+.dlg-label {
+  display: block;
+  font-size: 13px;
+  color: #606266;
+  margin-bottom: 6px;
+}
+.dlg-footer {
+  margin-top: 20px;
+  text-align: right;
 }
 .main {
   max-width: 1100px;

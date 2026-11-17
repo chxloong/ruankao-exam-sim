@@ -39,6 +39,10 @@ Page({
     wx.navigateTo({ url: '/pages/results/results' });
   },
 
+  goPwd() {
+    wx.navigateTo({ url: '/pages/password/password' });
+  },
+
   goDetail(e) {
     wx.navigateTo({ url: '/pages/detail/detail?id=' + e.currentTarget.dataset.id });
   },

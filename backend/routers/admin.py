@@ -424,7 +424,7 @@ def delete_paper(paper_id: int, user=Depends(require_admin)):
 def list_users(user=Depends(require_admin)):
     conn = connect()
     try:
-        rows = conn.execute("SELECT id, username, role, created_at FROM users ORDER BY id").fetchall()
+        rows = conn.execute("SELECT id, username, role, status, created_at FROM users ORDER BY id").fetchall()
         return {"users": [dict(r) for r in rows]}
     finally:
         conn.close()
@@ -446,6 +446,92 @@ def update_user(user_id: int, body: UserBody, admin=Depends(require_admin)):
         if row is None:
             raise _not_found("用户不存在")
         conn.execute("UPDATE users SET role = ? WHERE id = ?", (body.role, user_id))
+        conn.commit()
+        return {"ok": True}
+    finally:
+        conn.close()
+
+
+class NewUserBody(BaseModel):
+    username: str
+    password: str
+    role: str = "user"
+
+
+@router.post("/api/admin/users")
+def create_user(body: NewUserBody, admin=Depends(require_admin)):
+    import re
+
+    from security import hash_password
+
+    username = (body.username or "").strip()
+    password = str(body.password or "")
+    if not username:
+        raise _bad("用户名不能为空")
+    if not re.match(r"^[a-zA-Z0-9_\u4e00-\u9fa5]{2,20}$", username):
+        raise _bad("用户名需为 2-20 位字母、数字、下划线或中文")
+    if len(password) < 6:
+        raise _bad("密码至少 6 位")
+    if body.role not in ("user", "admin"):
+        raise _bad("role 必须是 user 或 admin")
+    conn = connect()
+    try:
+        exists = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+        if exists:
+            raise _bad("用户名已存在")
+        # 管理员添加的账号直接生效
+        conn.execute(
+            "INSERT INTO users (username, password_hash, role, status) VALUES (?, ?, ?, 'active')",
+            (username, hash_password(password), body.role),
+        )
+        conn.commit()
+        return {"ok": True}
+    finally:
+        conn.close()
+
+
+class UserStatusBody(BaseModel):
+    status: str
+
+
+@router.put("/api/admin/users/{user_id}/status")
+def set_user_status(user_id: int, body: UserStatusBody, admin=Depends(require_admin)):
+    if body.status not in ("pending", "active", "disabled"):
+        raise _bad("status 必须是 pending / active / disabled")
+    if user_id == admin["id"]:
+        raise _bad("不能修改自己的账号状态")
+    conn = connect()
+    try:
+        row = conn.execute("SELECT id, role FROM users WHERE id = ?", (user_id,)).fetchone()
+        if row is None:
+            raise _not_found("用户不存在")
+        conn.execute("UPDATE users SET status = ? WHERE id = ?", (body.status, user_id))
+        conn.commit()
+        return {"ok": True}
+    finally:
+        conn.close()
+
+
+class ResetPwdBody(BaseModel):
+    newPassword: str
+
+
+@router.put("/api/admin/users/{user_id}/reset-password")
+def reset_password(user_id: int, body: ResetPwdBody, admin=Depends(require_admin)):
+    if not body.newPassword or len(body.newPassword) < 6:
+        raise _bad("新密码至少 6 位")
+    conn = connect()
+    try:
+        from security import hash_password
+
+        row = conn.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+        if row is None:
+            raise _not_found("用户不存在")
+        # 重置后该用户所有旧登录态立即失效
+        conn.execute(
+            "UPDATE users SET password_hash = ?, pw_ver = pw_ver + 1 WHERE id = ?",
+            (hash_password(body.newPassword), user_id),
+        )
         conn.commit()
         return {"ok": True}
     finally:

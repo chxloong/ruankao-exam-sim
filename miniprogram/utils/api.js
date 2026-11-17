@@ -49,6 +49,12 @@ function api(path, { method = 'GET', body } = {}) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data);
         } else {
+          // 登录态失效：清除凭据并跳回登录页（登录/注册接口自身除外）
+          if (res.statusCode === 401 && !path.startsWith('/api/auth/')) {
+            wx.removeStorageSync(TOKEN_KEY);
+            wx.removeStorageSync(USER_KEY);
+            wx.reLaunch({ url: '/pages/login/login' });
+          }
           const msg = (res.data && res.data.error) || '请求失败（' + res.statusCode + '）';
           reject(new Error(msg));
         }

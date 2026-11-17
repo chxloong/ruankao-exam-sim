@@ -1,4 +1,5 @@
 """SQLite 连接与建表（与原 Node 版 schema 完全一致，沿用同一个数据库文件）"""
+import os
 import sqlite3
 import sys
 from contextlib import contextmanager
@@ -6,7 +7,10 @@ from pathlib import Path
 
 
 def _data_dir() -> Path:
-    """开发模式：backend/data；打包为 exe 后：exe 同级的 data 目录（便携式数据）"""
+    """优先级：测试环境变量 > 打包 exe 同级 data > 开发模式 backend/data"""
+    env_dir = os.environ.get("RUANKAO_DB_DIR")
+    if env_dir:
+        return Path(env_dir)
     if getattr(sys, "frozen", False):
         return Path(sys.executable).resolve().parent / "data"
     return Path(__file__).resolve().parent / "data"
@@ -45,6 +49,8 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user','admin')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('pending','active','disabled')),
+  pw_ver INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -103,3 +109,10 @@ CREATE TABLE IF NOT EXISTS exam_records (
 def init_schema() -> None:
     with db_scope() as conn:
         conn.executescript(SCHEMA)
+        # 迁移：老库的 users 表补 status / pw_ver 列，存量账号视为已启用
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
+        if "status" not in cols:
+            conn.execute("ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'active'")
+        if "pw_ver" not in cols:
+            conn.execute("ALTER TABLE users ADD COLUMN pw_ver INTEGER NOT NULL DEFAULT 0")
+        conn.execute("UPDATE users SET status = 'active' WHERE status IS NULL OR status = ''")

@@ -21,13 +21,6 @@ class CredentialsBody(BaseModel):
     password: str
 
 
-def _token_response(conn, username: str, role: str = "user", user_id: int | None = None):
-    row = conn.execute(
-        "SELECT id, username, role FROM users WHERE username = ?", (username,)
-    ).fetchone()
-    return {"token": make_token(row), "user": {"id": row["id"], "username": row["username"], "role": row["role"]}}
-
-
 @router.post("/api/auth/register")
 def register(body: CredentialsBody):
     username = body.username
@@ -43,12 +36,13 @@ def register(body: CredentialsBody):
         exists = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
         if exists:
             raise _bad("用户名已存在")
+        # 自助注册：默认待审核，管理员通过后才能登录
         conn.execute(
-            "INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'user')",
+            "INSERT INTO users (username, password_hash, role, status) VALUES (?, ?, 'user', 'pending')",
             (username, hash_password(password)),
         )
         conn.commit()
-        return _token_response(conn, username)
+        return {"status": "pending", "message": "注册成功，账号待管理员审核通过后即可登录"}
     finally:
         conn.close()
 
@@ -60,10 +54,14 @@ def login(body: CredentialsBody):
     conn = connect()
     try:
         row = conn.execute(
-            "SELECT id, username, role, password_hash FROM users WHERE username = ?", (body.username,)
+            "SELECT id, username, role, status, pw_ver, password_hash FROM users WHERE username = ?", (body.username,)
         ).fetchone()
         if row is None or not verify_password(body.password, row["password_hash"]):
             raise _bad("用户名或密码错误")
+        if row["status"] == "pending":
+            raise HTTPException(status_code=403, detail="账号待管理员审核通过后才能登录，请耐心等待")
+        if row["status"] == "disabled":
+            raise HTTPException(status_code=403, detail="账号已被停用，请联系管理员")
         return {"token": make_token(row), "user": {"id": row["id"], "username": row["username"], "role": row["role"]}}
     finally:
         conn.close()
@@ -72,3 +70,33 @@ def login(body: CredentialsBody):
 @router.get("/api/auth/me")
 def me(user=Depends(get_current_user)):
     return {"user": user}
+
+
+class ChangePwdBody(BaseModel):
+    oldPassword: str
+    newPassword: str
+
+
+@router.put("/api/auth/change-password")
+def change_password(body: ChangePwdBody, user=Depends(get_current_user)):
+    if not body.oldPassword or not body.newPassword:
+        raise _bad("旧密码和新密码不能为空")
+    if len(body.newPassword) < 6:
+        raise _bad("新密码至少 6 位")
+    if body.newPassword == body.oldPassword:
+        raise _bad("新密码不能与旧密码相同")
+    conn = connect()
+    try:
+        row = conn.execute("SELECT password_hash, pw_ver FROM users WHERE id = ?", (user["id"],)).fetchone()
+        if row is None:
+            raise HTTPException(status_code=401, detail="账号不存在")
+        if not verify_password(body.oldPassword, row["password_hash"]):
+            raise _bad("旧密码不正确")
+        conn.execute(
+            "UPDATE users SET password_hash = ?, pw_ver = pw_ver + 1 WHERE id = ?",
+            (hash_password(body.newPassword), user["id"]),
+        )
+        conn.commit()
+        return {"ok": True, "message": "密码修改成功，请使用新密码重新登录"}
+    finally:
+        conn.close()

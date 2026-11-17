@@ -19,6 +19,7 @@
     </view>
 
     <button class="btn-primary login-btn" loading="{{loading}}" bindtap="doLogin">登 录</button>
+    <navigator class="links" url="/pages/register/register">没有账号？去注册 →</navigator>
     <navigator class="links" url="/pages/results/results">查看我的成绩 →</navigator>
     <view class="hint">演示账号：管理员 admin / admin123，考生 student / 123456</view>
     <view class="hint">手机需与电脑连同一网络；正式使用需在开发者工具关闭"合法域名校验"（本项目已默认关闭）</view>

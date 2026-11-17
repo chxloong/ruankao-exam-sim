@@ -29,7 +29,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
@@ -42,9 +42,11 @@ async function onRegister() {
   if (form.password !== form.confirm) return ElMessage.warning('两次输入的密码不一致');
   loading.value = true;
   try {
-    await auth.register(form.username.trim(), form.password);
-    ElMessage.success('注册成功，已自动登录');
-    router.push('/');
+    const data = await auth.register(form.username.trim(), form.password);
+    ElMessageBox.alert(data.message || '注册成功，账号待管理员审核通过后即可登录', '注册成功', {
+      confirmButtonText: '去登录',
+      callback: () => router.push('/login'),
+    });
   } catch (e) {
     ElMessage.error(e.message);
   } finally {

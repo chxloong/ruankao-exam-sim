@@ -66,6 +66,12 @@ export async function api(path, { method = 'GET', body, keepalive = false } = {}
     /* 空响应体 */
   }
   if (!res.ok) {
+    // 登录态失效：清除本地凭据并跳转登录页（登录/注册接口自身的 401 除外）
+    if (res.status === 401 && !path.startsWith('/api/auth/login') && !path.startsWith('/api/auth/register')) {
+      setToken(null);
+      setStoredUser(null);
+      if (!location.pathname.startsWith('/login')) location.href = '/login';
+    }
     const err = new Error(data?.error || `请求失败（${res.status}）`);
     err.status = res.status;
     throw err;

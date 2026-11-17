@@ -25,12 +25,13 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def make_token(user_row) -> str:
-    """user_row: sqlite3.Row 或含 id/username/role 的 dict"""
+    """user_row: sqlite3.Row 或含 id/username/role/pw_ver 的 dict；pw_ver 用于改密后旧令牌失效"""
     now = datetime.now(timezone.utc)
     payload = {
         "id": user_row["id"],
         "username": user_row["username"],
         "role": user_row["role"],
+        "ver": user_row["pw_ver"],
         "iat": now,
         "exp": now + JWT_EXPIRES,
     }
@@ -54,11 +55,17 @@ def get_current_user(request: Request):
 
     conn = connect()
     try:
-        row = conn.execute("SELECT id, username, role FROM users WHERE id = ?", (payload["id"],)).fetchone()
+        row = conn.execute("SELECT id, username, role, status, pw_ver FROM users WHERE id = ?", (payload["id"],)).fetchone()
     finally:
         conn.close()
     if row is None:
         raise _unauthorized("账号不存在")
+    if row["status"] == "pending":
+        raise _unauthorized("账号待管理员审核通过后才能登录")
+    if row["status"] == "disabled":
+        raise _unauthorized("账号已被停用，请联系管理员")
+    if payload.get("ver") != row["pw_ver"]:
+        raise _unauthorized("密码已修改，请重新登录")
     return dict(row)
 
 

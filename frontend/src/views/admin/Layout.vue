@@ -4,6 +4,7 @@
       <div class="admin-logo">管理后台</div>
       <el-menu :default-active="route.path" router background-color="#001529" text-color="#c7c9d1" active-text-color="#fff">
         <el-menu-item index="/admin/questions">题库管理</el-menu-item>
+        <el-menu-item index="/admin/entry">题目录入</el-menu-item>
         <el-menu-item index="/admin/papers">试卷管理</el-menu-item>
         <el-menu-item index="/admin/users">用户管理</el-menu-item>
       </el-menu>

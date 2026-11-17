@@ -18,6 +18,7 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/admin/questions' },
         { path: 'questions', component: () => import('../views/admin/Questions.vue') },
+        { path: 'entry', component: () => import('../views/admin/Entry.vue') },
         { path: 'papers', component: () => import('../views/admin/Papers.vue') },
         { path: 'users', component: () => import('../views/admin/Users.vue') },
       ],

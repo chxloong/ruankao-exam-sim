@@ -127,9 +127,10 @@ def exam_state(record_id: int, user=Depends(get_current_user)):
         elapsed = (datetime.now(timezone.utc) - started).total_seconds()
         remain = max(0, loaded["paper"]["duration_minutes"] * 60 - int(elapsed))
 
-        # 超时未交卷 → 服务端自动交卷
+        # 超时未交卷 → 服务端自动交卷（判分需要正确答案，用含答案的加载）
         if rec["status"] == "in_progress" and remain <= 0:
-            return _finalize(conn, rec, loaded, auto=True)
+            loaded_full = _load_paper(conn, rec["paper_id"], with_answers=True)
+            return _finalize(conn, rec, loaded_full, auto=True)
 
         return {
             "record": {

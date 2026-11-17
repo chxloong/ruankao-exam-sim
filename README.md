@@ -22,7 +22,7 @@
 ## 技术栈
 
 - 前端：Vue 3 + Vite + Vue Router + Pinia + Element Plus（端口 5173）
-- 后端：Python FastAPI + 标准库 `sqlite3` + PyJWT + bcrypt（端口 3001）
+- 后端：Python FastAPI + 标准库 `sqlite3` + PyJWT + bcrypt（端口 3010）
 - 数据库文件：`backend/data/app.db`
 
 ## 启动
@@ -33,7 +33,7 @@ cd backend
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 .venv\Scripts\python seed.py    # 初始化示例数据（幂等）
-.venv\Scripts\python -m uvicorn main:app --host 127.0.0.1 --port 3001 --reload
+.venv\Scripts\python -m uvicorn main:app --host 127.0.0.1 --port 3010 --reload
 
 # 2. 前端（新开终端）
 cd frontend
@@ -41,16 +41,16 @@ npm install
 npm run dev      # http://localhost:5173
 ```
 
-> Windows 上需先安装 Python 3.12+；Linux/macOS 将 `.venv\Scripts\` 换为 `.venv/bin/`。接口文档自动生成于 http://localhost:3001/api/docs 。
+> Windows 上需先安装 Python 3.12+；Linux/macOS 将 `.venv\Scripts\` 换为 `.venv/bin/`。接口文档自动生成于 http://localhost:3010/api/docs 。
 
 ## 安卓版（APK）
 
 基于 **Capacitor**（Ionic 开源项目，业界主流的 Web→安卓方案）打包，界面与功能与 Web/桌面版完全一致，竖屏锁定，适配小米等主流机型（minSdk 24 = Android 7+）。
 
-**架构**：APK 内置前端界面（离线可用），数据来自电脑上运行的 FastAPI 后端（局域网模式）——手机与电脑连同一 WiFi，登录页「服务器地址」预填 `http://192.168.31.146:3001`（可改）。
+**架构**：APK 内置前端界面（离线可用），数据来自电脑上运行的 FastAPI 后端（局域网模式）——手机与电脑连同一 WiFi，登录页「服务器地址」预填 `http://192.168.31.146:3010`（可改）。
 
 **使用步骤**：
-1. 电脑：启动后端 `python -m uvicorn main:app --host 0.0.0.0 --port 3001`（必须 0.0.0.0 监听局域网；防火墙已放行 3001）
+1. 电脑：启动后端 `python -m uvicorn main:app --host 0.0.0.0 --port 3010`（必须 0.0.0.0 监听局域网；防火墙已放行 3010）
 2. 手机：安装 `release/软考机考模拟练习.apk`（MIUI 需允许"安装未知应用"），连同一 WiFi
 3. 打开 App → 登录页确认服务器地址 → 用演示账号登录即可
 
@@ -72,9 +72,9 @@ cd android && gradlew.bat assembleDebug
 `miniprogram/` 目录为**原生小程序**工程（WXML/WXSS/JS），覆盖考生端全流程：登录（含服务器地址配置）、试卷列表（开始/继续考试）、考场须知、机考作答（倒计时/分节答题卡抽屉/单选/多选/主观题字数统计/标记/节流自动保存/交卷确认/到时自动交卷）、成绩列表与详情回看（含解析与主观题自评）。管理后台仍请使用网页端。
 
 **使用步骤**：
-1. 电脑：后端以 `--host 0.0.0.0` 启动（防火墙已放行 3001），手机与电脑连同一 WiFi
+1. 电脑：后端以 `--host 0.0.0.0` 启动（防火墙已放行 3010），手机与电脑连同一 WiFi
 2. 微信开发者工具（[下载](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)）→ 导入 `miniprogram/` 目录 → AppID 选"测试号"或填自己的（`project.config.json` 默认 `touristappid`）
-3. 域名校验已默认关闭（`urlCheck: false`），模拟器即可连 `http://192.168.31.146:3001` 调试；真机预览/体验版需在右上角"…"开启**开发调试**
+3. 域名校验已默认关闭（`urlCheck: false`），模拟器即可连 `http://192.168.31.146:3010` 调试；真机预览/体验版需在右上角"…"开启**开发调试**
 4. 正式发布需 HTTPS + ICP 备案域名并在公众平台配置 request 合法域名（局域网地址无法过审）
 
 **小程序语法速览**：`.wxml` 页面结构（`{{}}` 绑定、`wx:if`/`wx:for`）、`.wxss` 样式（`rpx` 响应式单位）、`.js` 逻辑（`wx.request`/`Page()` 生命周期）、`.json` 配置。
@@ -87,7 +87,7 @@ cd android && gradlew.bat assembleDebug
 
 - 数据（SQLite）自动生成在 exe 同级的 `data/` 目录，便携可拷贝
 - 首次启动数据库为空时自动写入演示数据（admin/admin123、student/123456 与两张示例卷）
-- 端口随机分配，与 Web 版开发服务（3001）互不冲突
+- 端口随机分配，与 Web 版开发服务（3010）互不冲突
 - 排障日志：`data/desktop.log`
 
 **重新打包**：

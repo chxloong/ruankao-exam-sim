@@ -4,7 +4,8 @@ const TOKEN_KEY = 'rk_token';
 const USER_KEY = 'rk_user';
 
 // 默认连接电脑端后端（局域网模式），登录页可修改
-const DEFAULT_SERVER = 'http://192.168.31.146:3001';
+// 注意：本机 3001 被 new-api 网关占用，后端改用 3010
+const DEFAULT_SERVER = 'http://192.168.31.146:3010';
 
 function getServer() {
   return wx.getStorageSync(SERVER_KEY) || DEFAULT_SERVER;

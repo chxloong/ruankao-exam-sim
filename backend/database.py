@@ -1,17 +1,45 @@
-import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+"""SQLite 连接与建表（与原 Node 版 schema 完全一致，沿用同一个数据库文件）"""
+import sqlite3
+import sys
+from contextlib import contextmanager
+from pathlib import Path
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dataDir = path.join(__dirname, '..', 'data');
-mkdirSync(dataDir, { recursive: true });
 
-export const db = new DatabaseSync(path.join(dataDir, 'app.db'));
-db.exec('PRAGMA journal_mode = WAL;');
-db.exec('PRAGMA foreign_keys = ON;');
+def _data_dir() -> Path:
+    """开发模式：backend/data；打包为 exe 后：exe 同级的 data 目录（便携式数据）"""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent / "data"
+    return Path(__file__).resolve().parent / "data"
 
-db.exec(`
+
+DATA_DIR = _data_dir()
+DB_PATH = DATA_DIR / "app.db"
+
+
+def connect() -> sqlite3.Connection:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+
+@contextmanager
+def db_scope():
+    """请求级连接：用完提交并关闭"""
+    conn = connect()
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
@@ -69,5 +97,9 @@ CREATE TABLE IF NOT EXISTS exam_records (
   total_score REAL,
   self_scored INTEGER NOT NULL DEFAULT 0
 );
-`);
+"""
 
+
+def init_schema() -> None:
+    with db_scope() as conn:
+        conn.executescript(SCHEMA)
